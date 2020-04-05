@@ -1,0 +1,20 @@
+/*
+Linker script for STM32F10x
+Copyright RAISONANCE 2007 (modified by Lanchon 1-Feb-2008)
+You can use, copy and distribute this file freely, but without any waranty.
+Configure memory sizes, end of stack and boot mode for your project here.
+*/
+
+
+/* include the common STM32F10x sub-script */
+INCLUDE "ld/STM32_COMMON.ld"
+
+/* included memory layout sub-script*/
+INCLUDE "ld/STM32_MEM.ld"
+
+/* highest address of the user mode stack */
+_estack = 0x20005000;
+
+/* include the section management sub-script */
+/* (either "STM32_SEC_FLASH.ld" or "STM32_SEC_RAM.ld") */
+INCLUDE "ld/STM32_SEC_FLASH.ld"
