@@ -16,14 +16,16 @@ PROJECT := stm32f10x
 #***********
 # COMPILER options
 #*********** 
-CC := arm-none-eabi-gcc
-AR := arm-none-eabi-ar
-LD := arm-none-eabi-gcc
-
+CROSS_COMPILE ?= arm-none-eabi-
+CC := $(CROSS_COMPILE)gcc
+AR := $(CROSS_COMPILE)ar
+LD := $(CROSS_COMPILE)gcc
+OCP = $(CROSS_COMPILE)objcopy
 
 #***********
 # VARIABLE definitions
 #***********
+MAIN_OUT := $(BUILD_DIR)/$(PROJECT)
 
 CFLAGS :=	\
 	-mcpu=cortex-m3 \
@@ -37,6 +39,8 @@ LDFLAGS = 	\
 
 ARFLAGS := rcs
 
+OBJCPFLAGS = -O binary
+
 MODULES := lib . 
 
 MKFILE_PATH := $(abspath $(lastword $(MAKEFILE_LIST)))
@@ -44,6 +48,9 @@ MKFILE_ABS_DIR := $(dir $(MKFILE_PATH))
 
 # Extra libraries
 LIBS :=
+
+#Script to flash stm 
+STM32FLASH := $(MKFILE_ABS_DIR)/.stm_cfg/stm32_flash.py
 
 #***********
 # VARIABLES to be changed by MODULES
@@ -77,7 +84,10 @@ CFLAGS +=$(patsubst %,-I%,\
 # PROGRAM compilation
 #***********
 
-$(BUILD_DIR)/$(PROJECT).elf: $(BIN_FILES) $(BIN_LIBS)
+$(MAIN_OUT).bin: $(MAIN_OUT).elf
+	$(ECHO)$(OCP) $(OBJCPFLAGS) $< $@
+
+$(MAIN_OUT).elf: $(BIN_FILES) $(BIN_LIBS)
 	$(ECHO)#.elf
 	$(ECHO)$(CC) $(CFLAGS) $(LIBS) $^ $(LDFLAGS) -o $@  
 
@@ -162,3 +172,8 @@ $(DEP_LIB): $$(subst .d,.a,$$(subst $$(DEP_DIR),$$(BUILD_DIR),$$@))
 .PHONY: clean
 clean:
 	rm -rf prog $(DEP_DIR) $(BUILD_DIR)
+
+.PHONY: run
+run: main.bin
+	@echo "....running"
+	$(STM32FLASH) main.bin
