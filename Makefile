@@ -26,16 +26,27 @@ OCP = $(CROSS_COMPILE)objcopy
 # VARIABLE definitions
 #***********
 MAIN_OUT := $(BUILD_DIR)/$(PROJECT)
-
+# Possible additional arguments for Linker
+# Arguments from GNU ARM Toolchain examples:
+# -Os -flto -ffunction-sections -fdata-sections
 CFLAGS :=	\
 	-mcpu=cortex-m3 \
  	-mthumb -Wall	\
 	-g	\
 	-O0
 
+USE_SEMIHOST=--specs=rdimon.specs
+USE_NOHOST=--specs=nosys.specs
+USE_NANO=--specs=nano.specs
+
+LDSCRIPTS=-L.stm_cfg/ld -Tstm32_gnu.ld
+# Possible additional arguments for Linker
+# ,--orphan-handling=warn
 LDFLAGS = 	\
-	-Wl,--gc-sections,-Map=$@.map,-cref,--orphan-handling=warn,-u,Reset_Handler \
-	-Tstm32.ld 
+	-Wl,--gc-sections,-Map=$@.map,-cref,-u,Reset_Handler \
+	 $(LDSCRIPTS) \
+	 $(USE_NANO) \
+	 $(USE_SEMIHOST)
 
 ARFLAGS := rcs
 
@@ -66,6 +77,7 @@ BIN_LIBS:=
 
 BIN_FILES:=
 
+ASSEMBLY_OBJ:=
 #***********
 # INCLUDE module descriptions
 #***********
@@ -110,8 +122,8 @@ $(BUILD_DIR)/%.a: $$($$(addsuffix .OBJ,%))
 # 	or main/main to src/main/main.c
 #
 # Called by: $(BUILD_DIR)/%.o and $(DEP_DIR)/%.d 
-join_with_src = $(dir $(1))src/$(notdir $(1))/$(2).c
-to_c =$(call join_with_src,\
+join_with_src = $(dir $(1))src/$(notdir $(1))/$(2)
+to_src =$(call join_with_src,\
 $(patsubst %/$(notdir $(1)),%,$(1)),$(notdir $(1)))
 
 # For setting right directory path and .d includes
@@ -128,7 +140,7 @@ endef
 #***********
 
 .SECONDEXPANSION:
-$(BUILD_DIR)/%.o: $$(call to_c,%)
+$(BUILD_DIR)/%.o: $$(wildcard $$(call to_src,%)*)
 	$(ECHO)#%.o		
 	$(ECHO)$(MKDIR) -p $(dir $@)
 	$(ECHO)$(CC) $(CFLAGS) -c $< -o $@
@@ -150,7 +162,7 @@ include $(DEP_LIB)
 # CALCULATE dependencies
 #***********
 .SECONDEXPANSION:
-$(DEP_DIR)/%.d: $$(call to_c,%)	
+$(DEP_DIR)/%.d: $$(wildcard $$(call to_src,%)*)	
 	$(ECHO)#%.d		
 	$(ECHO)$(MKDIR) -p $(dir $@)	
 	$(ECHO)bash depend.sh 'dirname $@' \
