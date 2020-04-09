@@ -8,7 +8,7 @@
             "type": "cortex-debug",
             "request": "launch",
             "servertype": "openocd",
-            "cwd": "${workspaceRoot}/simple_exmpl",
+            "cwd": "${workspaceRoot}/",
             "executable": "${workspaceRoot}/build/stm32f10x.elf",
             "name": "Debug (OpenOCD)",
             "device": "STM32F103C8T6",
