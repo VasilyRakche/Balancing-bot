@@ -11,11 +11,17 @@ in arm-none-eabi download files
  *   RAM.LENGTH: length of RAM bank 0
  */
  
+ /*  STM32F103x8 is medium density device
+ *  size of SRAM(ram) of STM32F103Cxxx  is 20Kbytes
+ *  size of Flash is 64 Kbytes
+ *                      
+ */
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x8000000, LENGTH = 0x20000 /* 128K */
-  RAM (xrw) : ORIGIN = 0x20000000, LENGTH = 0x5000 /* 20K */
+  FLASH (rx) : ORIGIN = 0x8000000, LENGTH = 0x10000 /* 64K for STM32F103Cxxx*/ 
+  RAM (xrw) : ORIGIN = 0x20000000, LENGTH = 0x5000 /* 20K for STM32F103Cxxx*/
 }
+
 
 /* Linker script to place sections and symbol values. Should be used together
  * with other linker script that defines memory regions FLASH and RAM.
