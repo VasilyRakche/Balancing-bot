@@ -1,19 +1,20 @@
-#!/usr/bin/env
-import telnetlib
+#!/usr/bin/env python
+# Script can be called from Makefile with 2 arguments provided:
+# ./stm32_flash.py $(MAIN_OUT).bin .stm_cfg/stm32_flash.cfg
 import sys
+import re
+import os
 
-HOST = "localhost"
-PORT = "4444"
-cmd_list = ['reset halt', 'flash probe 0',
-            'flash write_image erase %s 0x08000000' % sys.argv[1], 'reset', 'exit']
+fin = open("%s" % sys.argv[2], "rt")
+data = fin.read()
+data = re.sub(r'erase .+ 0x08000000',
+              'erase %s 0x08000000' % sys.argv[1], data)
+fin.close()
 
-tlnt = telnetlib.Telnet(HOST, PORT)
-timeout = 5
-for cmd in cmd_list:
-    tlnt.write(b"%s\n" % cmd)
-    # wait until command is executed on device
-    hello = tlnt.read_until(b"> %s" % cmd, timeout)
-    print(hello)
+fin = open("%s" % sys.argv[2], "wt")
+fin.write(data)
+fin.close()
 
-
-tlnt.close()
+stream = os.popen('openocd -f %s' % sys.argv[2])
+output = stream.read()
+print(output)

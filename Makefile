@@ -186,6 +186,6 @@ clean:
 	rm -rf prog $(DEP_DIR) $(BUILD_DIR)
 
 .PHONY: run
-run: main.bin
-	@echo "....running"
-	$(STM32FLASH) main.bin
+run: $(MAIN_OUT).bin
+	$(ECHO)#run
+	$(STM32FLASH) $(MAIN_OUT).bin .stm_cfg/stm32_flash.cfg
