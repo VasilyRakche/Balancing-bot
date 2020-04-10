@@ -196,5 +196,6 @@ SECTIONS
     .debug_varnames  0 : { *(.debug_varnames) }
 }
 
+ENTRY (Reset_Handler)
 
 

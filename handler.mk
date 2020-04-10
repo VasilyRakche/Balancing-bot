@@ -28,9 +28,13 @@ MODULE_GLOBAL_NAMES += $(GLOBAL_NAME)
 
 $(GLOBAL_NAME).SRC := 		\
 	$(wildcard $(SRC_DIR)/*.c)
+$(GLOBAL_NAME).SRC += 		\
+	$(wildcard $(SRC_DIR)/*.S)
 $(GLOBAL_NAME).OBJ := 		\
+	$(patsubst %.S,$(BUILD_DIR)/%.o,		\
 	$(patsubst %.c,$(BUILD_DIR)/%.o,		\
-	$(subst $(SRC_PREFIX),,$($(GLOBAL_NAME).SRC)))
+	$(subst $(SRC_PREFIX),,$($(GLOBAL_NAME).SRC))))
+
 
 #	Library is generated and added to BIN_LIBS
 # 	OBJ files are added to BIN_FILES
