@@ -20,8 +20,8 @@ CROSS_COMPILE ?= arm-none-eabi-
 CC := $(CROSS_COMPILE)gcc
 AR := $(CROSS_COMPILE)ar
 LD := $(CROSS_COMPILE)gcc
-OCP = $(CROSS_COMPILE)objcopy
-
+OCP := $(CROSS_COMPILE)objcopy
+OPENOCD := openocd
 #***********
 # VARIABLE definitions
 #***********
@@ -61,7 +61,7 @@ MKFILE_ABS_DIR := $(dir $(MKFILE_PATH))
 LIBS :=
 
 #Script to flash stm 
-STM32FLASH := $(MKFILE_ABS_DIR)/.stm_cfg/stm32_flash.py
+STM32FLASH_CFG := .stm_cfg/stm32f103c8t6.cfg
 
 #***********
 # VARIABLES to be changed by MODULES
@@ -97,10 +97,11 @@ CFLAGS +=$(patsubst %,-I%,\
 #***********
 
 $(MAIN_OUT).bin: $(MAIN_OUT).elf
-	$(ECHO)$(OCP) $(OBJCPFLAGS) $< $@
+	$(ECHO)# "%.bin"
+	$(OCP) $(OBJCPFLAGS) $< $@
 
 $(MAIN_OUT).elf: $(BIN_FILES) $(BIN_LIBS)
-	$(ECHO)#.elf
+	$(ECHO)# "%.elf"
 	$(ECHO)$(CC) $(CFLAGS) $(LIBS) $^ $(LDFLAGS) -o $@  
 
 #***********
@@ -109,7 +110,7 @@ $(MAIN_OUT).elf: $(BIN_FILES) $(BIN_LIBS)
 
 .SECONDEXPANSION:
 $(BUILD_DIR)/%.a: $$($$(addsuffix .OBJ,%))
-	$(ECHO)#%.a
+	$(ECHO)# "%.a"
 	$(ECHO)$(AR) $(ARFLAGS) $@ $^
 
 #***********
@@ -141,7 +142,7 @@ endef
 
 .SECONDEXPANSION:
 $(BUILD_DIR)/%.o: $$(wildcard $$(call to_src,%)*)
-	$(ECHO)#%.o		
+	$(ECHO)# "%.o"		
 	$(ECHO)$(MKDIR) -p $(dir $@)
 	$(ECHO)$(CC) $(CFLAGS) -c $< -o $@
 
@@ -163,7 +164,7 @@ include $(DEP_LIB)
 #***********
 .SECONDEXPANSION:
 $(DEP_DIR)/%.d: $$(wildcard $$(call to_src,%)*)	
-	$(ECHO)#%.d		
+	$(ECHO)# "%.d"		
 	$(ECHO)$(MKDIR) -p $(dir $@)	
 	$(ECHO)bash depend.sh 'dirname $@' \
 	'dirname $(patsubst $(DEP_DIR)%,$(BUILD_DIR)%,$@)'   \
@@ -172,7 +173,7 @@ $(DEP_DIR)/%.d: $$(wildcard $$(call to_src,%)*)
 
 .SECONDEXPANSION:
 $(DEP_LIB): $$(subst .d,.a,$$(subst $$(DEP_DIR),$$(BUILD_DIR),$$@))
-	$(ECHO)#DEP_LIB
+	$(ECHO)# "%DEP_LIB"
 	$(ECHO)$(MKDIR) -p $(dir $@)
 	$(ECHO)echo "$@ $<: $($(subst $(BUILD_DIR)/,,$(basename $<)).OBJ)" > $@
 
@@ -187,5 +188,5 @@ clean:
 
 .PHONY: run
 run: $(MAIN_OUT).bin
-	$(ECHO)#run
-	$(STM32FLASH) $(MAIN_OUT).bin .stm_cfg/stm32_flash.cfg
+	@echo "%FLASH"
+	$(OPENOCD) -f $(STM32FLASH_CFG) -c "program $(MAIN_OUT).bin verify reset exit 0x08000000"
