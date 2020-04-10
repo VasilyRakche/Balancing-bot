@@ -14,7 +14,9 @@
             "device": "STM32F103C8T6",
             "configFiles": ["${workspaceRoot}/.stm_cfg/stm32f103c8t6.cfg"],
             "armToolchainPath": "/home/vasko/opt/gcc-arm-none-eabi-9-2019-q4-major/bin/",
-            "svdFile": "${workspaceFolder}/.stm_cfg/STM32F103xx.svd"
+            "svdFile": "${workspaceFolder}/.stm_cfg/STM32F103xx.svd",
+            "runToMain": true,
+            "debuggerArgs": ["--command=${workspaceFolder}/.stm_cfg/.gdbinit"]
         }
     ]
 }
