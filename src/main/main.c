@@ -2,8 +2,10 @@
 // http://fun-tech.se/stm32/OlimexBlinky/mini.php
 #include <stdlib.h>
 #include <stm32f10x_init.h>
+#include "delay.h"
 
 int main(void) {
+  SysTick_delay_init();
   	// Clock configuration settings
 	RCC_CFGR_TypeDef _rcc_cfgr_val;
 	RCC_CFGR_TypeDef* _rcc_cfgr=&_rcc_cfgr_val;
@@ -16,6 +18,10 @@ int main(void) {
 	_rcc_cfgr->PPRE2=RCC_CFGR_PPRE2_DIV1;
 	
 	HSE_clock_init(_rcc_cfgr);
+  SysTick_delay(20);
+  while(delay_active()){}
+  SysTick_delay(30);
+  while(delay_active()){}
   int i = 0;
   int b[50] = {0}; // zero initialize a struct
   for (;;) {
