@@ -33,7 +33,7 @@ CFLAGS :=	\
 	-mcpu=cortex-m3 \
  	-mthumb -Wall	\
 	-g	\
-	-O0
+	-O0	
 
 USE_SEMIHOST=--specs=rdimon.specs
 USE_NOHOST=--specs=nosys.specs
@@ -67,7 +67,8 @@ STM32FLASH_CFG := .stm_cfg/stm32f103c8t6.cfg
 # VARIABLES to be changed by MODULES
 #***********
 INC_PATHS :=	\
-	ld 
+	ld \
+	drivers/CMSIS/Device/ST/STM32F1xx/inc
 
 BIN_LIBS :=
 

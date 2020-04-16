@@ -1,6 +1,0 @@
-{
-    "C_Cpp.loggingLevel": "Debug",
-    "files.associations": {
-        "stm32f10x_it.h": "c"
-    }
-}
