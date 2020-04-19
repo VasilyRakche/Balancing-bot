@@ -14,6 +14,8 @@
 
 [Try more detailed example from hands on to automation with Makefile and perl](https://www.triplespark.net/elec/pdev/arm/stm32.html)
 
+[Learn all about FreeRTOS](https://www.freertos.org/wp-content/uploads/2018/07/161204_Mastering_the_FreeRTOS_Real_Time_Kernel-A_Hands-On_Tutorial_Guide.pdf)
+
 ## Cheat-sheet
 
 Assemble the file, invoke the GNU Toolchain’s assembler  

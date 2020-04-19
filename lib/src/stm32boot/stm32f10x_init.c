@@ -1,4 +1,4 @@
-#include <stm32f10x_init.h>
+#include "stm32f10x_init.h"
 
 #define HSE_FREQUENCY 8000000UL
 #define FLASH_0_LATENCY_MAX_FREQ 24000000UL
