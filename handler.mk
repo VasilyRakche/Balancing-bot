@@ -3,21 +3,12 @@
 #	DIR
 #	ISLIB
 
-#	If DIR is undefined then:
-#				module.mk is in Makefile root folder
-#				SRC_PREFIX is used to delete src from
-#					OBJ path 
 ifdef  DIR
-SRC_PREFIX := /src
-SRC_DIR:= $(DIR)/src/$(NAME)
 GLOBAL_NAME := $(DIR)/$(NAME)
-INC_PATHS += $(DIR)/inc/$(NAME)
 else
-SRC_PREFIX := src/
-SRC_DIR:= src/$(NAME)
 GLOBAL_NAME := $(NAME)
-INC_PATHS += inc/$(NAME)
 endif
+INC_PATHS += $(INC_PATH)
 
 #	Under these names .d files are generated
 MODULE_GLOBAL_NAMES += $(GLOBAL_NAME)
@@ -26,15 +17,20 @@ MODULE_GLOBAL_NAMES += $(GLOBAL_NAME)
 #	OBJ files with right directory are set up
 #		lib/src/main/main.o to build/lib/main/main.o
 
-$(GLOBAL_NAME).SRC := 		\
-	$(wildcard $(SRC_DIR)/*.c)
-$(GLOBAL_NAME).SRC += 		\
-	$(wildcard $(SRC_DIR)/*.S)
+$(GLOBAL_NAME).SRC :=
+#Function for adding source files from each DIR in SRC_DIR
+define add_src =
+	$(GLOBAL_NAME).SRC += 		\
+		$(wildcard $(1)/*.c)
+	$(GLOBAL_NAME).SRC += 		\
+		$(wildcard $(1)/*.S)
+endef
+$(foreach DIRECTORY,$(SRC_DIR),$(eval $(call add_src,$(DIRECTORY))) )
+
 $(GLOBAL_NAME).OBJ := 		\
 	$(patsubst %.S,$(BUILD_DIR)/%.o,		\
 	$(patsubst %.c,$(BUILD_DIR)/%.o,		\
 	$(subst $(SRC_PREFIX),,$($(GLOBAL_NAME).SRC))))
-
 
 #	Library is generated and added to BIN_LIBS
 # 	OBJ files are added to BIN_FILES
@@ -42,7 +38,9 @@ $(GLOBAL_NAME).OBJ := 		\
 #	BIN_LIBS and BIN_FILES are used for .elf file gen.
 ifeq ($(ISLIB),YES)
 BIN_LIBS += $(BUILD_DIR)/$(GLOBAL_NAME).a
+BIN_FILES += $($(GLOBAL_NAME).OBJ)
 else 
 BIN_FILES += $($(GLOBAL_NAME).OBJ)
 endif
+
 

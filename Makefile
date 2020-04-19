@@ -68,7 +68,10 @@ STM32FLASH_CFG := .stm_cfg/stm32f103c8t6.cfg
 #***********
 INC_PATHS :=	\
 	ld \
-	drivers/CMSIS/Device/ST/STM32F1xx/inc
+	lib/inc/CMSIS/Device/ST/STM32F1xx \
+	Middlewares/FreeRTOS/Source/Include \
+	Middlewares/FreeRTOS/Source/portable/GCC/ARM_CM3
+
 
 BIN_LIBS :=
 
@@ -98,11 +101,11 @@ CFLAGS +=$(patsubst %,-I%,\
 #***********
 
 $(MAIN_OUT).bin: $(MAIN_OUT).elf
-	$(ECHO)# "%.bin"
+	$(ECHO)#%.bin	
 	$(OCP) $(OBJCPFLAGS) $< $@
 
 $(MAIN_OUT).elf: $(BIN_FILES) $(BIN_LIBS)
-	$(ECHO)# "%.elf"
+	$(ECHO)#%.elf
 	$(ECHO)$(CC) $(CFLAGS) $(LIBS) $^ $(LDFLAGS) -o $@  
 
 #***********
@@ -111,39 +114,16 @@ $(MAIN_OUT).elf: $(BIN_FILES) $(BIN_LIBS)
 
 .SECONDEXPANSION:
 $(BUILD_DIR)/%.a: $$($$(addsuffix .OBJ,%))
-	$(ECHO)# "%.a"
+	$(ECHO)#%.a
 	$(ECHO)$(AR) $(ARFLAGS) $@ $^
-
-#***********
-# MAKE FUNCTIONS scripts
-#***********
-
-# For adding src to supplied PATH
-# in a way:
-# 	lib/main/main to lib/src/main/main.c
-# 	or main/main to src/main/main.c
-#
-# Called by: $(BUILD_DIR)/%.o and $(DEP_DIR)/%.d 
-join_with_src = $(dir $(1))src/$(notdir $(1))/$(2)
-to_src =$(call join_with_src,\
-$(patsubst %/$(notdir $(1)),%,$(1)),$(notdir $(1)))
-
-# For setting right directory path and .d includes
-# 	build/lib/main/main.o to .deps/lib/main/main.d
-#
-# Called by: INCLUDE dependencies
-define include_d_from_o =
-	include $(patsubst $(BUILD_DIR)/%.o,$(DEP_DIR)/%.d,\
-	$($(addsuffix .OBJ,$(1))))
-endef
 
 #***********
 # GENERATE regular object files
 #***********
 
 .SECONDEXPANSION:
-$(BUILD_DIR)/%.o: $$(wildcard $$(call to_src,%)*)
-	$(ECHO)# "%.o"		
+$(BUILD_DIR)/%.o: $$(wildcard %.*)
+	$(ECHO)#%.o		
 	$(ECHO)$(MKDIR) -p $(dir $@)
 	$(ECHO)$(CC) $(CFLAGS) -c $< -o $@
 
@@ -151,9 +131,7 @@ $(BUILD_DIR)/%.o: $$(wildcard $$(call to_src,%)*)
 # INCLUDE dependencies
 #***********
 
-# For .o file includes, calls function include_d_from_o
-$(foreach MODULE,$(MODULE_GLOBAL_NAMES),$(eval $(call include_d_from_o,$(MODULE))) )
-
+include $(patsubst $(BUILD_DIR)/%.o,$(DEP_DIR)/%.d, $(BIN_FILES))
 #For CUSTOM BINARY LIBRARIES(.a), .d file generation
 DEP_LIB := $(patsubst \
 	$(BUILD_DIR)/%.a,$(DEP_DIR)/%.d,$(BIN_LIBS))
@@ -164,8 +142,8 @@ include $(DEP_LIB)
 # CALCULATE dependencies
 #***********
 .SECONDEXPANSION:
-$(DEP_DIR)/%.d: $$(wildcard $$(call to_src,%)*)	
-	$(ECHO)# "%.d"		
+$(DEP_DIR)/%.d: $$(wildcard %.*)
+	$(ECHO)#%.d		
 	$(ECHO)$(MKDIR) -p $(dir $@)	
 	$(ECHO)bash depend.sh 'dirname $@' \
 	'dirname $(patsubst $(DEP_DIR)%,$(BUILD_DIR)%,$@)'   \
@@ -174,7 +152,7 @@ $(DEP_DIR)/%.d: $$(wildcard $$(call to_src,%)*)
 
 .SECONDEXPANSION:
 $(DEP_LIB): $$(subst .d,.a,$$(subst $$(DEP_DIR),$$(BUILD_DIR),$$@))
-	$(ECHO)# "%DEP_LIB"
+	$(ECHO)#DEP_LIB
 	$(ECHO)$(MKDIR) -p $(dir $@)
 	$(ECHO)echo "$@ $<: $($(subst $(BUILD_DIR)/,,$(basename $<)).OBJ)" > $@
 

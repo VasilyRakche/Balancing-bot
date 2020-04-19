@@ -17,6 +17,10 @@ DIR := lib
 #						Object files are added to
 #						the BIN_FILES 
 #
+#	Where to look for sources and headers:
+SRC_DIR:= $(DIR)/src/$(NAME)
+INC_PATH:=$(DIR)/inc/$(NAME) \
+	$(DIR)/inc/CMSIS/Device/ST/STM32F1xx 
 #	BIN_LIBS and BIN_FILES are used for .elf file gen.
 ISLIB := YES
 # 	handler.mk is used to set up all global parameters
