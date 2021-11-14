@@ -1,4 +1,5 @@
 # Balancing-bot
+![balancing-bot](https://user-images.githubusercontent.com/30003101/141695899-f1b3e85b-0f52-4fb8-b4b8-000de7a4f00b.png)
 
 ## How to help this project (LEARN AND APPLY!):
 
